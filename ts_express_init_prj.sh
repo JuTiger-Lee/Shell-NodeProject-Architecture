@@ -29,7 +29,7 @@ then
     echo '/node_modules' >> .gitignore
     echo '/dist' >> .gitignore
     echo '.env' >> .gitignore
-    
+
     git init
     echo "git init success!"
 
@@ -163,4 +163,3 @@ git add .
 git commit -m '::example typescript + express auto init project'
 git pull origin master
 git push -u origin +master 
-# D://dev//Shell-NodeProject-Architecture//Example_ts_express_init_prj

@@ -1,5 +1,3 @@
-output="test/d/test.sh"
-
 echo "Please write You are project folder routes"
 read -r prjFolderRoute
 

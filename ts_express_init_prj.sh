@@ -41,12 +41,16 @@ else
     echo "You Choice $choiceGithub Thanks..."
 fi
 
+# TODO Swagger choice
+
 
 # module install
 
 npm init
 npm install dotenv
 npm install env-var
+npm install module-alias
+npm install reflect-metadata
 npm install --save-dev typescript
 npm install --save-dev ts-node
 npm install --save-dev @types/node

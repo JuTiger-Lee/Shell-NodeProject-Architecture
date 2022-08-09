@@ -1,6 +1,7 @@
+output="test/d/test.sh"
+
 echo "Please write You are project folder routes"
-echo "Example: C://User//~"
-read prjFolderRoute
+read -r prjFolderRoute
 
 if [[ $prjFolderRoute == "" ]]
 then 
@@ -38,7 +39,7 @@ then
 
     echo "Success Setting $gitRepo"
 else
-    echo "You Choice $choiceGithub Thanks..."
+    echo "You Choice No Thanks..."
 fi
 
 # Swagger Choice
@@ -48,22 +49,23 @@ read choiceSwagger
 
 if [[ $choiceSwagger == "Y" || $choiceSwagger == "y" ]]
 then 
+    npm init
     echo "swagger init..."
     
-    npm install swagger-jsdoc
-    npm install @types/swagger-jsdoc
+    npm install swagger-jsdoc@6.2.1
+    npm i --save-dev @types/swagger-jsdoc@6.0.1
 
     npm install swagger-ui-express
-    npm install @types/swagger-ui-express
+    npm install --save-dev @types/swagger-ui-express
 
     echo "Success install Swagger"
 else
-    echo "You Choice $choiceSwagger Thanks..."
+    npm init
+    echo "You Choice No Thanks..."
 fi
 
 # module install
 
-npm init
 npm install dotenv
 npm install env-var
 npm install module-alias
@@ -87,6 +89,31 @@ touch tsconfig.build.json .env
 
 echo 'NODE_ENV="dev"
 PORT=8080' >> .env
+
+echo '{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+    },
+    "allowJs": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "incremental": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+  },
+}' > tsconfig.json
 
 echo '{
     "extends": "./tsconfig.json",
@@ -301,21 +328,20 @@ export default class SwaggerHandler {
     cd ../
 
     cd controllers/
+    mkdir apiDocs/
+    cd apiDocs/
     touch ApiDocs.ts
 
     echo 'import swaggerUI from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
 import SwaggerHandler from "@/handler/SwaggerHandler";
-import userAPI from "@/controllers/apiDocs/user/index";
 
 class ApiDocs {
   private apiDocOption: object;
   private swagger: SwaggerHandler;
 
   constructor() {
-    this.apiDocOption = {
-      ...userAPI,
-    };
+    this.apiDocOption = {};
 
     this.swagger = SwaggerHandler.getSwaggerInstance();
   }
@@ -339,7 +365,7 @@ class ApiDocs {
 
 export default ApiDocs;' >> ApiDocs.ts
 
-    cd ../
+    cd ../../
 
     echo "Swagger Setting Success"
 fi
@@ -370,9 +396,7 @@ perl -p -i -e '$.==7 and print "\"build\": \"tsc --p tsconfig.build.json\",
 \"dev\": \"nodemon --watch src -e ts --exec npm run dev:start\",
 \"start\": \"npm run build && node dist/index.js\",\n"' package.json
 
-perl -p -i -e '$.==13 and print "\"moduleAliases\": { \n
-    \"@\": \"./dist\"
-}, \n"' package.json
+perl -p -i -e '$.==14 and print "\"moduleAliases\": { \n \"@\": \"./dist\" }, \n"' package.json
 
 perl -p -i -e '$.==3 and print "\"baseUrl\": \"./\",
 \"paths\": {

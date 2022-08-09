@@ -132,7 +132,7 @@ mkdir src/
 cd src/
 touch app.ts index.ts
 mkdir controllers/ 
-mkdir handlr/
+mkdir handler/
 mkdir repos/
 
 mkdir routers/

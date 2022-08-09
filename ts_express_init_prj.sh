@@ -41,8 +41,25 @@ else
     echo "You Choice $choiceGithub Thanks..."
 fi
 
-# TODO Swagger choice
+# Swagger Choice
 
+echo "Are you using Swagger? Y/N"
+read choiceSwagger
+
+if [[ $choiceSwagger == "Y" || $choiceSwagger == "y" ]]
+then 
+    echo "swagger init..."
+    
+    npm install swagger-jsdoc
+    npm install @types/swagger-jsdoc
+
+    npm install swagger-ui-express
+    npm install @types/swagger-ui-express
+
+    echo "Success install Swagger"
+else
+    echo "You Choice $choiceSwagger Thanks..."
+fi
 
 # module install
 
@@ -59,6 +76,9 @@ npm install --save-dev nodemon
 
 npm install express
 npm install --save-dev @types/express
+
+echo "init module install Success!"
+
 npx tsc --init
 
 touch tsconfig.build.json .env
@@ -133,6 +153,197 @@ cd src/
 touch app.ts index.ts
 mkdir controllers/ 
 mkdir handler/
+
+if [[ $choiceSwagger == "Y" || $choiceSwagger == "y" ]]
+then
+    cd handler/
+    touch SwaggerHandler.ts
+
+    echo 'import { OAS3Options, Paths, PathItem } from "swagger-jsdoc";
+
+const swaggerOpenApiVersion = "3.0.0";
+
+const swaggerInfo = {
+  title: "",
+  version: "0.0.1",
+  description: "" 
+};
+
+const swaggerTags = [
+  {
+    name: "User",
+    description: "사용자 관련 API",
+  },
+];
+
+const swaggerSchemes = ["http", "https"];
+
+const swaggerSecurityDefinitions = {
+  ApiKeyAuth: {
+    type: "apiKey",
+    name: "Authorization",
+    in: "header",
+  },
+};
+
+const swaggerProduces = ["application/json"];
+
+const swaggerServers = [
+  {
+    url: "http://localhost:8080",
+    description: "로컬 서버",
+  },
+];
+
+const swaggerSecurityScheme = {
+  bearerAuth: {
+    type: "http",
+    scheme: "bearer",
+    bearerFormat: "Token",
+    name: "Authorization",
+    description: "인증 토큰 값을 넣어주세요.",
+    in: "header",
+  },
+};
+
+const swaggerComponents = {
+  // JWT_ERROR: {
+  //   description: "jwt token Error",
+  //   type: "object",
+  //   properties: {
+  //     401: {
+  //       type: "Error token 변조 에러",
+  //     },
+  //   },
+  // },
+  SERVER_ERROR: {
+    description: "SERVER ERROR",
+    type: "object",
+    properties: {
+      500: {
+        type: "Internal Error",
+        code: 800,
+      },
+    },
+  },
+};
+
+/**
+ * The Swagger Hanlder is having issues with concurrency
+ * This is a problem with a Singleton Pattern
+ */
+export default class SwaggerHandler {
+  private static swaggerInstance: SwaggerHandler;
+  private option: OAS3Options = {
+    definition: {
+      openapi: swaggerOpenApiVersion,
+      info: swaggerInfo,
+      servers: swaggerServers,
+      schemes: swaggerSchemes,
+      securityDefinitions: swaggerSecurityDefinitions,
+
+      /* open api 3.0.0 version option */
+      produces: swaggerProduces,
+      components: {
+        securitySchemes: swaggerSecurityScheme,
+        schemas: swaggerComponents,
+      },
+      tags: swaggerTags,
+    },
+    apis: [],
+  };
+
+  private setUpOption: {
+    // search
+    explorer: true;
+  };
+
+  private apiPaths = [];
+
+  private constructor() {}
+
+  static getSwaggerInstance() {
+    if (!SwaggerHandler.swaggerInstance)
+      SwaggerHandler.swaggerInstance = new SwaggerHandler();
+
+    return SwaggerHandler.swaggerInstance;
+  }
+
+  private processAPI() {
+    const path: Paths = {};
+
+    for (let i = 0; i < this.apiPaths.length; i += 1) {
+      for (const [key, value] of Object.entries(this.apiPaths[i])) {
+        path[key] = value;
+      }
+    }
+
+    return path;
+  }
+
+  addAPI(api: PathItem) {
+    this.apiPaths.push(api);
+  }
+
+  /** TODO: add compoentns method  */
+  addCompoents() {}
+
+  getOption() {
+    const path = this.processAPI();
+    this.option.definition.paths = path;
+
+    return {
+      apiOption: this.option,
+      setUpOption: this.setUpOption,
+    };
+  }
+}' >> SwaggerHandler.ts
+    cd ../
+
+    cd controllers/
+    touch ApiDocs.ts
+
+    echo 'import swaggerUI from "swagger-ui-express";
+import swaggerJsDoc from "swagger-jsdoc";
+import SwaggerHandler from "@/handler/SwaggerHandler";
+import userAPI from "@/controllers/apiDocs/user/index";
+
+class ApiDocs {
+  private apiDocOption: object;
+  private swagger: SwaggerHandler;
+
+  constructor() {
+    this.apiDocOption = {
+      ...userAPI,
+    };
+
+    this.swagger = SwaggerHandler.getSwaggerInstance();
+  }
+
+  init() {
+    this.swagger.addAPI(this.apiDocOption);
+  }
+
+  getSwaggerOption() {
+    const { apiOption, setUpOption } = this.swagger.getOption();
+
+    const specs = swaggerJsDoc(apiOption);
+
+    return {
+      swaggerUI,
+      specs,
+      setUpOption,
+    };
+  }
+}
+
+export default ApiDocs;' >> ApiDocs.ts
+
+    cd ../
+
+    echo "Swagger Setting Success"
+fi
+
 mkdir repos/
 
 mkdir routers/
@@ -147,6 +358,8 @@ cd ../
 
 mkdir services/
 mkdir utils/
+
+echo "Project Folder Setting Success!"
 
 # specific file wrtie
 

@@ -12,7 +12,7 @@ if [[ ! -d $prjFolderRoute ]] ; then
  echo "$prjFolderRoute folder does not exist."
  exit 1
 fi
-D://dev//prj_test
+
 echo "The project path you submitted: $prjFolderRoute"
 
 cd $prjFolderRoute
@@ -29,7 +29,6 @@ then
     echo '/node_modules' >> .gitignore
     echo '/dist' >> .gitignore
     echo '.env' >> .gitignore
-
     git init
     echo "git init success!"
 
@@ -58,8 +57,7 @@ npm install express
 npm install --save-dev @types/express
 npx tsc --init
 
-touch tsconfig.build.json app.ts index.ts 
-touch .env
+touch tsconfig.build.json app.ts index.ts .env
 
 # file write
 
@@ -160,6 +158,6 @@ perl -p -i -e '$.==3 and print "\"baseUrl\": \"./\",
 },"' tsconfig.json
 
 git add .
-git commit -m '::example typescript + express auto init project'
+git commit -m 'init'
 git pull origin master
 git push -u origin +master 

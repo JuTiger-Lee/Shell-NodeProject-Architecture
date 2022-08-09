@@ -61,7 +61,7 @@ npm install express
 npm install --save-dev @types/express
 npx tsc --init
 
-touch tsconfig.build.json app.ts index.ts .env
+touch tsconfig.build.json .env
 
 # file write
 
@@ -130,6 +130,7 @@ export default app;' >> app.ts
 
 mkdir src/
 cd src/
+touch app.ts index.ts
 mkdir controllers/ 
 mkdir handlr/
 mkdir repos/
@@ -155,6 +156,8 @@ perl -p -i -e '$.==7 and print "\"build\": \"tsc --p tsconfig.build.json\",
 \"dev:start\": \"npm run build && node dist/index.js\",
 \"dev\": \"nodemon --watch src -e ts --exec npm run dev:start\",
 \"start\": \"npm run build && node dist/index.js\",\n"' package.json
+
+# TODO moduleALiases 부분 추가 필요
 
 perl -p -i -e '$.==3 and print "\"baseUrl\": \"./\",
 \"paths\": {

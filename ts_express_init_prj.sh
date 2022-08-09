@@ -173,7 +173,7 @@ then
     git pull origin master
     git push -u origin +master
 
-    echo "Github Push origin" 
+    echo "Github Push origin Success" 
 fi
 
 echo "Project Success!" 

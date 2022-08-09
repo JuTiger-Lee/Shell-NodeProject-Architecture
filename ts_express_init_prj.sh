@@ -157,14 +157,23 @@ perl -p -i -e '$.==7 and print "\"build\": \"tsc --p tsconfig.build.json\",
 \"dev\": \"nodemon --watch src -e ts --exec npm run dev:start\",
 \"start\": \"npm run build && node dist/index.js\",\n"' package.json
 
-# TODO moduleALiases 부분 추가 필요
+perl -p -i -e '$.==13 and print "\"moduleAliases\": { \n
+    \"@\": \"./dist\"
+}, \n"' package.json
 
 perl -p -i -e '$.==3 and print "\"baseUrl\": \"./\",
 \"paths\": {
     \"@/*\": [\"./src/*\"],
 },"' tsconfig.json
 
-git add .
-git commit -m 'init'
-git pull origin master
-git push -u origin +master 
+if [[ $choiceGithub == "Y" || $choiceGithub == "y" ]]
+then
+    git add .
+    git commit -m 'init'
+    git pull origin master
+    git push -u origin +master
+
+    echo "Github Push origin" 
+fi
+
+echo "Project Success!" 

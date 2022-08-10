@@ -3,8 +3,8 @@ read -r prjFolderRoute
 
 if [[ $prjFolderRoute == "" ]]
 then 
-    echo "Please wirte project folder routes"
-    exit 1
+  echo "Please wirte project folder routes"
+  exit 1
 fi
 
 if [[ ! -d $prjFolderRoute ]] ; then
@@ -45,9 +45,10 @@ fi
 echo "Are you using Swagger? Y/N"
 read choiceSwagger
 
+npm init -y
+
 if [[ $choiceSwagger == "Y" || $choiceSwagger == "y" ]]
 then 
-    npm init
     echo "swagger init..."
     
     npm install swagger-jsdoc@6.2.1
@@ -58,7 +59,6 @@ then
 
     echo "Success install Swagger"
 else
-    npm init
     echo "You Choice No Thanks..."
 fi
 
@@ -117,13 +117,20 @@ echo '{
     "extends": "./tsconfig.json",
     // dist를 넣어줌으로써 여러번 build 시 에러 해결
     "exclude": ["node_modules", "dist"]
-  }' >> tsconfig.build.json
+  }' > tsconfig.build.json
+
+# project folder make
+
+mkdir src/
+cd src/
+touch app.ts index.ts
+
+mkdir controllers/ 
+mkdir handler/
 
 echo 'import "module-alias/register";
 import "reflect-metadata";
 import app from "@/app";
-import env from "env-var";
-import dotenv from "dotenv";
 
 const { server, PORT } = app;
 
@@ -171,20 +178,12 @@ app.bootstrap();
 
 export default app;' >> app.ts
 
-# project folder make
-
-mkdir src/
-cd src/
-touch app.ts index.ts
-mkdir controllers/ 
-mkdir handler/
-
 if [[ $choiceSwagger == "Y" || $choiceSwagger == "y" ]]
 then
-    cd handler/
-    touch SwaggerHandler.ts
+  cd handler/
+  touch SwaggerHandler.ts
 
-    echo 'import { OAS3Options, Paths, PathItem } from "swagger-jsdoc";
+  echo 'import { OAS3Options, Paths, PathItem } from "swagger-jsdoc";
 
 const swaggerOpenApiVersion = "3.0.0";
 
@@ -288,7 +287,7 @@ export default class SwaggerHandler {
   private constructor() {}
 
   static getSwaggerInstance() {
-    if (!SwaggerHandler.swaggerInstance)
+    if (!SwaggerHandler.swaggerInstance) 
       SwaggerHandler.swaggerInstance = new SwaggerHandler();
 
     return SwaggerHandler.swaggerInstance;
@@ -365,6 +364,62 @@ export default ApiDocs;' >> ApiDocs.ts
 
     cd ../../
 
+    echo 'import express from "express";
+import routers from "@/routers/index";
+import env from "env-var";
+import dotenv from "dotenv";
+import ApiDocs from "@/controllers/apiDocs/ApiDocs";
+
+class App {
+  public readonly server: express.Application;
+  public readonly PORT: number;
+
+  constructor() {
+    this.PORT = env.get("PORT").default(8080).asPortNumber();
+    this.server = express();
+  }
+
+  bootstrap() {
+    this.checkEnv();
+    this.initExpress();
+    this.initSwagger();
+    this.setRouter();
+  }
+
+  private checkEnv() {
+    dotenv.config();
+  }
+
+  private initExpress() {
+    this.server.use(express.urlencoded({ extended: true }));
+    this.server.use(express.json());
+  }
+
+  private initSwagger() {
+    const apiDocs = new ApiDocs();
+    apiDocs.init();
+    const { swaggerUI, specs, setUpOption } = apiDocs.getSwaggerOption();
+
+    if (env.get("NODE_ENV").asString() !== "production") {
+      this.server.use(
+        "/api-docs",
+        swaggerUI.serve,
+        swaggerUI.setup(specs, setUpOption)
+      );
+    }
+  }
+
+  private setRouter() {
+    routers(this.server);
+  }
+}
+
+const app = new App();
+app.bootstrap();
+
+export default app;
+' > app.ts
+
     echo "Swagger Setting Success"
 fi
 
@@ -394,12 +449,7 @@ perl -p -i -e '$.==7 and print "\"build\": \"tsc --p tsconfig.build.json\",
 \"dev\": \"nodemon --watch src -e ts --exec npm run dev:start\",
 \"start\": \"npm run build && node dist/index.js\",\n"' package.json
 
-perl -p -i -e '$.==14 and print "\"moduleAliases\": { \n \"@\": \"./dist\" }, \n"' package.json
-
-perl -p -i -e '$.==3 and print "\"baseUrl\": \"./\",
-\"paths\": {
-    \"@/*\": [\"./src/*\"],
-},"' tsconfig.json
+perl -p -i -e '$.==13 and print "\"_moduleAliases\": { \n \"@\": \"./dist\" \n }, \n"' package.json
 
 if [[ $choiceGithub == "Y" || $choiceGithub == "y" ]]
 then
